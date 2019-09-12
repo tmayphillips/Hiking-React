@@ -1,29 +1,32 @@
 import React, {useEffect} from 'react'
 import connect from 'react-redux'
+import * as actionCreators from '../store/actions/actionCreators'
 
-function HikingList() {
+function HikingList(props) {
 
-  useEffect(() {
-    fetchHikingLocations()
-  })
-
-  const fetchHikingLocations = () => {
-    fetch('http://localhost:3001/all-locations')
-    .then(response => response.json())
-    .then(json => {
-      props.onHikingLocationsLoaded(json)
-    })
-  }
+  useEffect(() => {
+    props.onHikingLocationsLoaded()
+  },[])
 
   return(
-    <div>Hiking List</div>
+    <div>
+      {props.hikingLocations.map(location => {
+        return <div>{location.latitude}, {location.longitude}</div>
+      })}
+    </div>
   )
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return (
-    onHikingLocationsLoaded: (hikingData) => dispatch({type: 'HIKING_DATA_LOADED', payload: hikingData})
-  )
+  return {
+    onHikingLocationsLoaded: () => dispatch(actionCreators.hikingDataFetched())
+  }
 }
 
-export default connect(null, mapDispatchToProps)(HikingList)
+const mapStateToProps = (state) => {
+  return {
+    hikingLocations: state.locations
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HikingList)
